@@ -60,3 +60,9 @@ variable "google_api_key_secret_json_key" {
   type        = string
   default     = "apiKey"
 }
+
+variable "google_geocoding_max_requests_per_second" {
+  description = "Maximum number of outbound Google Geocoding requests per second per Lambda execution environment."
+  type        = number
+  default     = 25
+}

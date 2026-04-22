@@ -158,6 +158,7 @@ resource "aws_lambda_function" "geocode" {
     variables = {
       "GeocodeCache__TableName"              = aws_dynamodb_table.geocode_cache.name
       "GeocodeCache__CacheDurationDays"      = tostring(var.cache_duration_days)
+      "GoogleGeocoding__MaxRequestsPerSecond" = tostring(var.google_geocoding_max_requests_per_second)
       "GoogleGeocoding__ApiKeySecretName"    = aws_secretsmanager_secret.google_api_key.name
       "GoogleGeocoding__ApiKeySecretJsonKey" = var.google_api_key_secret_json_key
     }

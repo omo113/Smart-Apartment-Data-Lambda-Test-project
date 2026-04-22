@@ -5,6 +5,7 @@ using SmartApartmentLambda.Application.Geocoding.Contracts;
 using SmartApartmentLambda.Application.Geocoding.Errors;
 using SmartApartmentLambda.Infrastructure.Configuration;
 using System.Text.Json;
+using Polly.RateLimiting;
 
 namespace SmartApartmentLambda.Infrastructure.Geocoding.Clients;
 
@@ -67,6 +68,10 @@ public sealed class GoogleGeocodingClient : IGoogleGeocodingClient
         catch (HttpRequestException ex)
         {
             throw new UpstreamServiceException("The Google Geocoding request failed.", ex);
+        }
+        catch (RateLimiterRejectedException ex)
+        {
+            throw new UpstreamServiceException("The Google Geocoding request rate limit was exceeded locally.", ex);
         }
     }
 

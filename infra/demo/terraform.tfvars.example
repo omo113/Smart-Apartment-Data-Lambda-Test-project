@@ -1,6 +1,7 @@
 aws_account_id = "590183851689"
 aws_region     = "eu-north-1"
 environment    = "demo"
+google_geocoding_max_requests_per_second = 25
 
 tags = {
   Project     = "smart-apartment-geocode"

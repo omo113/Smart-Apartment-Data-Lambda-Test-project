@@ -8,6 +8,7 @@ using SmartApartmentLambda.Infrastructure.Configuration;
 using SmartApartmentLambda.Infrastructure.Geocoding.Caching;
 using SmartApartmentLambda.Infrastructure.Geocoding.Clients;
 using SmartApartmentLambda.Infrastructure.Geocoding.Providers;
+using System.Threading.RateLimiting;
 
 namespace SmartApartmentLambda.Infrastructure;
 
@@ -43,6 +44,22 @@ public static class DependencyInjection
             })
             .AddStandardResilienceHandler(options =>
             {
+                var rateLimit = configuration
+                    .GetSection(GoogleGeocodingOptions.SectionName)
+                    .GetValue<int?>(nameof(GoogleGeocodingOptions.MaxRequestsPerSecond))
+                    ?? 25;
+                var rateLimiter = new TokenBucketRateLimiter(new TokenBucketRateLimiterOptions
+                {
+                    TokenLimit = rateLimit,
+                    TokensPerPeriod = rateLimit,
+                    ReplenishmentPeriod = TimeSpan.FromSeconds(1),
+                    QueueLimit = rateLimit,
+                    QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                    AutoReplenishment = true
+                });
+
+                options.RateLimiter.RateLimiter = arguments =>
+                    rateLimiter.AcquireAsync(1, arguments.Context.CancellationToken);
                 options.AttemptTimeout.Timeout = TimeSpan.FromSeconds(10);
                 options.TotalRequestTimeout.Timeout = TimeSpan.FromSeconds(20);
                 options.Retry.MaxRetryAttempts = 3;

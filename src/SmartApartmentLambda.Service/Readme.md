@@ -75,6 +75,7 @@ The default Google configuration targets Geocoding API v4 address lookups at `ht
 - `GoogleGeocoding__BaseUrl`
 - `GoogleGeocoding__GeocodePath`
 - `GoogleGeocoding__TimeoutSeconds`
+- `GoogleGeocoding__MaxRequestsPerSecond`
 - `GoogleGeocoding__ApiKeySecretName`
 - `GoogleGeocoding__ApiKeySecretJsonKey`
 
@@ -86,6 +87,8 @@ Google API key handling:
   - If the secret is JSON, the provider reads the `apiKey` property by default
 - Local non-production override:
   - Set `GOOGLE_GEOCODING_API_KEY`
+
+The client rate limits outbound Google requests to `25` requests per second by default for each Lambda execution environment. Override this with `GoogleGeocoding__MaxRequestsPerSecond` when needed.
 
 ## AWS Setup
 

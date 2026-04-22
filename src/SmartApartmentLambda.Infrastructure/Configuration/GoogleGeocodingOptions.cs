@@ -15,6 +15,9 @@ public sealed class GoogleGeocodingOptions
     [Range(1, 60)]
     public int TimeoutSeconds { get; init; } = 10;
 
+    [Range(1, 1000)]
+    public int MaxRequestsPerSecond { get; init; } = 25;
+
     [Required]
     public string ApiKeyEnvironmentVariableName { get; init; } = "GOOGLE_GEOCODING_API_KEY";
 
