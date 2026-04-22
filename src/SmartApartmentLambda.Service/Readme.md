@@ -130,6 +130,18 @@ Create these resources outside the repo:
 
 ## Local Validation
 
+Local startup:
+
+```bash
+dotnet run --project src/SmartApartmentLambda.Service/SmartApartmentLambda.Service.csproj
+```
+
+This starts a local HTTP host on `http://localhost:5000` when the Lambda runtime environment is not present. Use:
+
+```text
+GET http://localhost:5000/Geocode?address=70%20Vanderbilt%20Ave,%20New%20York,%20NY%2010017,%20United%20States
+```
+
 Build:
 
 ```bash
@@ -152,3 +164,4 @@ dotnet test SmartApartmentLambda.Tests/SmartApartmentLambda.Tests.csproj --no-bu
 6. Invoke the same address again and show `X-Cache-Status: HIT`.
 7. Explain that records older than 30 days are treated as expired even before DynamoDB physically removes them.
 8. Show the test suite and mention the covered scenarios: cache hit, miss, refresh, zero results, non-cacheable statuses, and HTTP error mapping.
+

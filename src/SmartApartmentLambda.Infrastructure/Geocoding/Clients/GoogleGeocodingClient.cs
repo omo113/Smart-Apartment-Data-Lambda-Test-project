@@ -128,14 +128,12 @@ public sealed class GoogleGeocodingClient : IGoogleGeocodingClient
     private static bool IsValidLatitude(double latitude) =>
         !double.IsNaN(latitude) &&
         !double.IsInfinity(latitude) &&
-        latitude >= -90 &&
-        latitude <= 90;
+        latitude is >= -90 and <= 90;
 
     private static bool IsValidLongitude(double longitude) =>
         !double.IsNaN(longitude) &&
         !double.IsInfinity(longitude) &&
-        longitude >= -180 &&
-        longitude <= 180;
+        longitude is >= -180 and <= 180;
 
     private sealed record ParsedGoogleGeocodingResponse(string GoogleStatus, int ResultCount);
 }

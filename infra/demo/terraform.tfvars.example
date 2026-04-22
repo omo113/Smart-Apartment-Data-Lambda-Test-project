@@ -1,0 +1,12 @@
+aws_account_id = "590183851689"
+aws_region     = "eu-north-1"
+environment    = "demo"
+
+tags = {
+  Project     = "smart-apartment-geocode"
+  Environment = "demo"
+}
+
+# Supply these at plan/apply time or from CI:
+# lambda_package_path = "/absolute/path/to/SmartApartmentLambda.Service.zip"
+# lambda_package_hash = "base64-encoded-sha256"

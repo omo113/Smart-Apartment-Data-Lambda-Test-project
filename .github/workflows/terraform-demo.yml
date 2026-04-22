@@ -1,0 +1,135 @@
+name: Terraform Demo Deploy
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/terraform-demo.yml"
+      - "infra/**"
+      - "src/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: terraform-demo-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  AWS_REGION: eu-north-1
+  AWS_ROLE_TO_ASSUME: arn:aws:iam::590183851689:role/github-actions-terraform-smart-apartment-demo
+  DOTNET_VERSION: 8.0.x
+  TERRAFORM_VERSION: 1.14.8
+  TF_IN_AUTOMATION: "true"
+  TF_VAR_aws_account_id: "590183851689"
+  TF_VAR_aws_region: eu-north-1
+  TF_VAR_environment: demo
+
+jobs:
+  deploy-demo:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+
+      - name: Restore solution
+        run: dotnet restore src/SmartApartmentLambda.Service/SmartApartmentLambda.sln
+
+      - name: Run tests
+        run: dotnet test src/SmartApartmentLambda.Tests/SmartApartmentLambda.Tests.csproj --configuration Release --no-restore
+
+      - name: Publish Lambda
+        run: |
+          dotnet publish src/SmartApartmentLambda.Service/SmartApartmentLambda.Service.csproj \
+            --configuration Release \
+            --runtime linux-x64 \
+            --self-contained false \
+            --output "$RUNNER_TEMP/lambda-publish"
+
+      - name: Package Lambda zip
+        id: package
+        run: |
+          python3 <<'PY'
+          import base64
+          import hashlib
+          import os
+          from pathlib import Path
+          import zipfile
+
+          publish_dir = Path(os.environ["RUNNER_TEMP"]) / "lambda-publish"
+          package_path = Path(os.environ["RUNNER_TEMP"]) / "smart-apartment-geocode-demo.zip"
+
+          with zipfile.ZipFile(package_path, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+              for file_path in sorted(publish_dir.rglob("*")):
+                  if file_path.is_file():
+                      archive.write(file_path, file_path.relative_to(publish_dir))
+
+          package_hash = base64.b64encode(hashlib.sha256(package_path.read_bytes()).digest()).decode("utf-8")
+
+          with Path(os.environ["GITHUB_OUTPUT"]).open("a", encoding="utf-8") as output_file:
+              output_file.write(f"package_path={package_path}\n")
+              output_file.write(f"package_hash={package_hash}\n")
+          PY
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ env.AWS_ROLE_TO_ASSUME }}
+          role-session-name: terraform-demo-deploy
+
+      - name: Check Terraform formatting
+        run: terraform fmt -check -recursive infra
+
+      - name: Initialize bootstrap stack for validation
+        run: terraform -chdir=infra/bootstrap init -backend=false -input=false
+
+      - name: Validate bootstrap stack
+        run: terraform -chdir=infra/bootstrap validate
+
+      - name: Initialize demo stack
+        run: terraform -chdir=infra/demo init -input=false
+
+      - name: Validate demo stack
+        run: terraform -chdir=infra/demo validate
+
+      - name: Plan demo stack
+        run: |
+          terraform -chdir=infra/demo plan \
+            -input=false \
+            -out=tfplan \
+            -var="lambda_package_path=${{ steps.package.outputs.package_path }}" \
+            -var="lambda_package_hash=${{ steps.package.outputs.package_hash }}"
+
+      - name: Apply demo stack
+        run: terraform -chdir=infra/demo apply -input=false -auto-approve tfplan
+
+      - name: Summarize deployment
+        run: |
+          api_base_url="$(terraform -chdir=infra/demo output -raw api_base_url)"
+          lambda_function_name="$(terraform -chdir=infra/demo output -raw lambda_function_name)"
+          dynamodb_table_name="$(terraform -chdir=infra/demo output -raw dynamodb_table_name)"
+          secret_name="$(terraform -chdir=infra/demo output -raw secret_name)"
+
+          {
+            echo "## Demo deployment"
+            echo
+            echo "- API base URL: ${api_base_url}"
+            echo "- Lambda function: ${lambda_function_name}"
+            echo "- DynamoDB table: ${dynamodb_table_name}"
+            echo "- Secrets Manager secret: ${secret_name}"
+          } >> "$GITHUB_STEP_SUMMARY"
