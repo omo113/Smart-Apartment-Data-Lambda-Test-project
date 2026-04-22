@@ -1,0 +1,51 @@
+using Amazon.DynamoDBv2;
+using Amazon.SecretsManager;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using SmartApartmentLambda.Application.Geocoding;
+using SmartApartmentLambda.Infrastructure.Configuration;
+using SmartApartmentLambda.Infrastructure.Geocoding;
+
+namespace SmartApartmentLambda.Infrastructure;
+
+public static class DependencyInjection
+{
+    public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
+    {
+        services
+            .AddOptions<GoogleGeocodingOptions>()
+            .Bind(configuration.GetSection(GoogleGeocodingOptions.SectionName))
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+
+        services
+            .AddOptions<GeocodeCacheOptions>()
+            .Bind(configuration.GetSection(GeocodeCacheOptions.SectionName))
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+
+        services.TryAddSingleton<IAmazonDynamoDB>(_ => new AmazonDynamoDBClient());
+        services.TryAddSingleton<IAmazonSecretsManager>(_ => new AmazonSecretsManagerClient());
+
+        services.AddSingleton<IGoogleApiKeyProvider, GoogleApiKeyProvider>();
+        services.AddSingleton<IGeocodeCachePolicy, GeocodeCachePolicy>();
+        services.AddSingleton<IGeocodeCacheRepository, DynamoDbGeocodeCacheRepository>();
+
+        services
+            .AddHttpClient<IGoogleGeocodingClient, GoogleGeocodingClient>((serviceProvider, client) =>
+            {
+                var options = serviceProvider.GetRequiredService<Microsoft.Extensions.Options.IOptions<GoogleGeocodingOptions>>().Value;
+                client.BaseAddress = new Uri(options.BaseUrl, UriKind.Absolute);
+                client.Timeout = TimeSpan.FromSeconds(options.TimeoutSeconds);
+            })
+            .AddStandardResilienceHandler(options =>
+            {
+                options.AttemptTimeout.Timeout = TimeSpan.FromSeconds(10);
+                options.TotalRequestTimeout.Timeout = TimeSpan.FromSeconds(20);
+                options.Retry.MaxRetryAttempts = 3;
+            });
+
+        return services;
+    }
+}

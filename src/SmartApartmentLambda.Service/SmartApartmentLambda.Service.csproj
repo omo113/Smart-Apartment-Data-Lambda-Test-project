@@ -15,10 +15,17 @@
     <PackageReference Include="Amazon.Lambda.RuntimeSupport" Version="1.12.0" />
     <PackageReference Include="Amazon.Lambda.Core" Version="2.5.0" />
     <PackageReference Include="Amazon.Lambda.Serialization.SystemTextJson" Version="2.4.4" />
-    <PackageReference Include="Amazon.Lambda.APIGatewayEvents" Version="2.*" />
-    <PackageReference Include="AWSSDK.DynamoDBv2" Version="4.*" />
+    <PackageReference Include="Amazon.Lambda.APIGatewayEvents" Version="2.7.1" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="10.0.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SmartApartmentLambda.Application\SmartApartmentLambda.Application.csproj" />
+    <ProjectReference Include="..\SmartApartmentLambda.Infrastructure\SmartApartmentLambda.Infrastructure.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 </Project>
