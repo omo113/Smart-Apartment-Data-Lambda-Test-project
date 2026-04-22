@@ -129,7 +129,7 @@ Create these resources outside the repo:
 Build:
 
 ```bash
-dotnet build SmartApartmentLambda.Service/SmartApartmentLambda.sln
+dotnet build SmartApartmentLambda.sln
 ```
 
 Run tests:

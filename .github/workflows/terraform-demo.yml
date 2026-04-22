@@ -47,7 +47,7 @@ jobs:
           terraform_version: ${{ env.TERRAFORM_VERSION }}
 
       - name: Restore solution
-        run: dotnet restore src/SmartApartmentLambda.Service/SmartApartmentLambda.sln
+        run: dotnet restore SmartApartmentLambda.sln
 
       - name: Run tests
         run: dotnet test src/SmartApartmentLambda.Tests/SmartApartmentLambda.Tests.csproj --configuration Release --no-restore
