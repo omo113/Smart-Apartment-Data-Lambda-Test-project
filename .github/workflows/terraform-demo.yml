@@ -96,13 +96,13 @@ jobs:
         run: terraform fmt -check -recursive infra
 
       - name: Initialize bootstrap stack for validation
-        run: terraform -chdir=infra/bootstrap init -backend=false -input=false
+        run: terraform -chdir=infra/bootstrap init -backend=false -input=false -reconfigure
 
       - name: Validate bootstrap stack
         run: terraform -chdir=infra/bootstrap validate
 
       - name: Initialize demo stack
-        run: terraform -chdir=infra/demo init -input=false
+        run: terraform -chdir=infra/demo init -input=false -reconfigure
 
       - name: Validate demo stack
         run: terraform -chdir=infra/demo validate
