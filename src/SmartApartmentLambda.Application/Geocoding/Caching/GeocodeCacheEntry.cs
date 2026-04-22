@@ -1,4 +1,4 @@
-namespace SmartApartmentLambda.Application.Geocoding;
+namespace SmartApartmentLambda.Application.Geocoding.Caching;
 
 public sealed record GeocodeCacheEntry(
     string NormalizedAddress,

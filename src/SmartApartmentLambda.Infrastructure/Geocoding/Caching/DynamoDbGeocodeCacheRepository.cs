@@ -1,12 +1,14 @@
-using System.Globalization;
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.Model;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using SmartApartmentLambda.Application.Geocoding;
+using SmartApartmentLambda.Application.Geocoding.Abstractions;
+using SmartApartmentLambda.Application.Geocoding.Caching;
+using SmartApartmentLambda.Application.Geocoding.Errors;
 using SmartApartmentLambda.Infrastructure.Configuration;
+using System.Globalization;
 
-namespace SmartApartmentLambda.Infrastructure.Geocoding;
+namespace SmartApartmentLambda.Infrastructure.Geocoding.Caching;
 
 public sealed class DynamoDbGeocodeCacheRepository : IGeocodeCacheRepository
 {

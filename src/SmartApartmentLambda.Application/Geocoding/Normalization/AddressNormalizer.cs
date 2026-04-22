@@ -1,6 +1,6 @@
 using System.Text.RegularExpressions;
 
-namespace SmartApartmentLambda.Application.Geocoding;
+namespace SmartApartmentLambda.Application.Geocoding.Normalization;
 
 internal static partial class AddressNormalizer
 {

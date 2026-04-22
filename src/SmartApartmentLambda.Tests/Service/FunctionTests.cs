@@ -2,7 +2,9 @@ using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
 using MediatR;
 using Microsoft.Extensions.Logging.Abstractions;
-using SmartApartmentLambda.Application.Geocoding;
+using SmartApartmentLambda.Application.Geocoding.Caching;
+using SmartApartmentLambda.Application.Geocoding.Contracts;
+using SmartApartmentLambda.Application.Geocoding.Errors;
 using SmartApartmentLambda.Service;
 using Xunit;
 

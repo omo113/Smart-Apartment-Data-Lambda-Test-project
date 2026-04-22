@@ -1,4 +1,4 @@
-namespace SmartApartmentLambda.Application.Geocoding;
+namespace SmartApartmentLambda.Application.Geocoding.Errors;
 
 public sealed class UpstreamServiceException : Exception
 {

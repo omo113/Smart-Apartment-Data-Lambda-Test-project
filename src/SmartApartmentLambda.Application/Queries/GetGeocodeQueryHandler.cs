@@ -1,7 +1,12 @@
 using MediatR;
 using Microsoft.Extensions.Logging;
-using SmartApartmentLambda.Application.Geocoding;
+using SmartApartmentLambda.Application.Geocoding.Abstractions;
+using SmartApartmentLambda.Application.Geocoding.Caching;
+using SmartApartmentLambda.Application.Geocoding.Contracts;
+using SmartApartmentLambda.Application.Geocoding.Errors;
+using SmartApartmentLambda.Application.Geocoding.Normalization;
 using System.Diagnostics;
+using AddressNormalizer = SmartApartmentLambda.Application.Geocoding.Normalization.AddressNormalizer;
 
 namespace SmartApartmentLambda.Application.Queries;
 

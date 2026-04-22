@@ -1,8 +1,8 @@
 using Microsoft.Extensions.Options;
-using SmartApartmentLambda.Application.Geocoding;
+using SmartApartmentLambda.Application.Geocoding.Abstractions;
 using SmartApartmentLambda.Infrastructure.Configuration;
 
-namespace SmartApartmentLambda.Infrastructure.Geocoding;
+namespace SmartApartmentLambda.Infrastructure.Geocoding.Caching;
 
 public sealed class GeocodeCachePolicy : IGeocodeCachePolicy
 {

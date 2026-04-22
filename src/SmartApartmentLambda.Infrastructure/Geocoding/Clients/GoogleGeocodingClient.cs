@@ -1,10 +1,12 @@
-using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using SmartApartmentLambda.Application.Geocoding;
+using SmartApartmentLambda.Application.Geocoding.Abstractions;
+using SmartApartmentLambda.Application.Geocoding.Contracts;
+using SmartApartmentLambda.Application.Geocoding.Errors;
 using SmartApartmentLambda.Infrastructure.Configuration;
+using System.Text.Json;
 
-namespace SmartApartmentLambda.Infrastructure.Geocoding;
+namespace SmartApartmentLambda.Infrastructure.Geocoding.Clients;
 
 public sealed class GoogleGeocodingClient : IGoogleGeocodingClient
 {

@@ -1,9 +1,10 @@
-using System.Net;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
-using SmartApartmentLambda.Application.Geocoding;
+using SmartApartmentLambda.Application.Geocoding.Abstractions;
+using SmartApartmentLambda.Application.Geocoding.Errors;
 using SmartApartmentLambda.Infrastructure.Configuration;
-using SmartApartmentLambda.Infrastructure.Geocoding;
+using SmartApartmentLambda.Infrastructure.Geocoding.Clients;
+using System.Net;
 using Xunit;
 
 namespace SmartApartmentLambda.Tests.Geocoding;

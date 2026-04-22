@@ -1,7 +1,7 @@
 using System.Security.Cryptography;
 using System.Text;
 
-namespace SmartApartmentLambda.Application.Geocoding;
+namespace SmartApartmentLambda.Application.Geocoding.Normalization;
 
 internal static class AddressHasher
 {

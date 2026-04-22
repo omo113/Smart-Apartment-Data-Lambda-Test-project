@@ -86,6 +86,13 @@ Google API key handling:
   - If the secret is JSON, the provider reads the `apiKey` property by default
 - Local non-production override:
   - Set `GOOGLE_GEOCODING_API_KEY`
+  - Or create a local `.env` file beside `Program.cs` or one level above the service output directory with `GOOGLE_GEOCODING_API_KEY=<value>`
+
+Example local `.env`:
+
+```text
+GOOGLE_GEOCODING_API_KEY=your-local-google-api-key
+```
 
 ## AWS Setup
 

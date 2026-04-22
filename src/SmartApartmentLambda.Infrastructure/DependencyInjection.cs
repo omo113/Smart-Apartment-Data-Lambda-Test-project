@@ -3,9 +3,11 @@ using Amazon.SecretsManager;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using SmartApartmentLambda.Application.Geocoding;
+using SmartApartmentLambda.Application.Geocoding.Abstractions;
 using SmartApartmentLambda.Infrastructure.Configuration;
-using SmartApartmentLambda.Infrastructure.Geocoding;
+using SmartApartmentLambda.Infrastructure.Geocoding.Caching;
+using SmartApartmentLambda.Infrastructure.Geocoding.Clients;
+using SmartApartmentLambda.Infrastructure.Geocoding.Providers;
 
 namespace SmartApartmentLambda.Infrastructure;
 

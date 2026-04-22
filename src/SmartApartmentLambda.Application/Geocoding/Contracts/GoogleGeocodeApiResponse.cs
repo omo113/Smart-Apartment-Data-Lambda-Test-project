@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace SmartApartmentLambda.Application.Geocoding;
+namespace SmartApartmentLambda.Application.Geocoding.Contracts;
 
 public sealed record GoogleGeocodeApiResponse(
     [property: JsonPropertyName("results")] IReadOnlyList<GoogleGeocodeResult>? Results);

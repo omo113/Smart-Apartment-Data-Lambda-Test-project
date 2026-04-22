@@ -1,5 +1,5 @@
 using MediatR;
-using SmartApartmentLambda.Application.Geocoding;
+using SmartApartmentLambda.Application.Geocoding.Contracts;
 
 namespace SmartApartmentLambda.Application.Queries;
 

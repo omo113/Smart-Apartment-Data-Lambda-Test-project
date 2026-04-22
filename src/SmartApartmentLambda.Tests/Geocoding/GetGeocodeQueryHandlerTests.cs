@@ -1,5 +1,7 @@
 using Microsoft.Extensions.Logging.Abstractions;
-using SmartApartmentLambda.Application.Geocoding;
+using SmartApartmentLambda.Application.Geocoding.Abstractions;
+using SmartApartmentLambda.Application.Geocoding.Caching;
+using SmartApartmentLambda.Application.Geocoding.Contracts;
 using SmartApartmentLambda.Application.Queries;
 using Xunit;
 
@@ -146,7 +148,7 @@ public sealed class GetGeocodeQueryHandlerTests
             new StubTimeProvider(FixedUtcNow));
     }
 
-        private static string CreateGoogleResultsResponse(string placeId) => $$"""
+    private static string CreateGoogleResultsResponse(string placeId) => $$"""
                 {
                     "results": [
                         {
@@ -175,7 +177,7 @@ public sealed class GetGeocodeQueryHandlerTests
                 }
                 """;
 
-        private static string CreateZeroResultsResponse() => """
+    private static string CreateZeroResultsResponse() => """
                 {
                     "results": []
                 }

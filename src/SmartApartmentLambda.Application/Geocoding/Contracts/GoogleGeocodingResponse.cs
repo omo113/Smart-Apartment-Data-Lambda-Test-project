@@ -1,4 +1,4 @@
-namespace SmartApartmentLambda.Application.Geocoding;
+namespace SmartApartmentLambda.Application.Geocoding.Contracts;
 
 public sealed record GoogleGeocodingResponse(
     string ResponseBody,

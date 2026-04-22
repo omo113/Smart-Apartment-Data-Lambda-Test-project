@@ -1,4 +1,6 @@
-namespace SmartApartmentLambda.Application.Geocoding;
+using SmartApartmentLambda.Application.Geocoding.Caching;
+
+namespace SmartApartmentLambda.Application.Geocoding.Abstractions;
 
 public interface IGeocodeCacheRepository
 {

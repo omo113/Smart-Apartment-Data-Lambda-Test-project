@@ -1,13 +1,14 @@
-using System.Text.Json;
 using Amazon.SecretsManager;
 using Amazon.SecretsManager.Model;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using SmartApartmentLambda.Application.Geocoding;
+using SmartApartmentLambda.Application.Geocoding.Abstractions;
+using SmartApartmentLambda.Application.Geocoding.Errors;
 using SmartApartmentLambda.Infrastructure.Configuration;
+using System.Text.Json;
 
-namespace SmartApartmentLambda.Infrastructure.Geocoding;
+namespace SmartApartmentLambda.Infrastructure.Geocoding.Providers;
 
 public sealed class GoogleApiKeyProvider : IGoogleApiKeyProvider
 {
