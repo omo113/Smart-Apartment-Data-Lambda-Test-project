@@ -42,6 +42,27 @@ The workflow will:
 3. Assume `arn:aws:iam::590183851689:role/github-actions-terraform-smart-apartment-demo` through GitHub OIDC.
 4. Run `terraform fmt -check`, `terraform validate`, `terraform plan`, and `terraform apply`.
 
+After a successful deploy, use Terraform outputs to get the exact API URL:
+
+```bash
+terraform -chdir=infra/demo output -raw geocode_invoke_url
+terraform -chdir=infra/demo output -raw geocode_postman_example_url
+```
+
+The API uses the `$default` stage, so the URL does not include a stage name. The route is:
+
+```text
+GET https://<api-id>.execute-api.eu-north-1.amazonaws.com/Geocode?address=<url-encoded-address>
+```
+
+For Postman, you do not need to configure CORS. If the request fails, check:
+
+- the URL includes `/Geocode`
+- the method is `GET`
+- the `address` query parameter is present
+- API Gateway access logs in `/aws/apigateway/smart-apartment-geocode-demo-http`
+- Lambda logs in `/aws/lambda/smart-apartment-geocode-demo`
+
 ## Google API Secret
 
 Terraform creates the secret metadata only. Set the value manually after the first demo apply:

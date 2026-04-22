@@ -22,6 +22,7 @@ locals {
   lambda_function_name = "smart-apartment-geocode-${var.environment}"
   lambda_role_name     = "${local.lambda_function_name}-lambda-role"
   log_group_name       = "/aws/lambda/${local.lambda_function_name}"
+  api_log_group_name   = "/aws/apigateway/${local.lambda_function_name}-http"
   dynamodb_table_name  = "smart-apartment-geocode-cache-${var.environment}"
   secret_name          = "smart-apartment/google-geocoding/${var.environment}"
   http_api_name        = "${local.lambda_function_name}-http"
@@ -43,6 +44,11 @@ check "expected_region" {
 
 resource "aws_cloudwatch_log_group" "lambda" {
   name              = local.log_group_name
+  retention_in_days = 14
+}
+
+resource "aws_cloudwatch_log_group" "api_gateway" {
+  name              = local.api_log_group_name
   retention_in_days = 14
 }
 
@@ -186,6 +192,18 @@ resource "aws_apigatewayv2_stage" "default" {
   api_id      = aws_apigatewayv2_api.http.id
   name        = "$default"
   auto_deploy = true
+
+  access_log_settings {
+    destination_arn = aws_cloudwatch_log_group.api_gateway.arn
+    format = jsonencode({
+      requestId      = "$context.requestId"
+      routeKey       = "$context.routeKey"
+      status         = "$context.status"
+      integration    = "$context.integration.status"
+      responseLength = "$context.responseLength"
+      errorMessage   = "$context.error.message"
+    })
+  }
 }
 
 resource "aws_lambda_permission" "allow_api_gateway" {

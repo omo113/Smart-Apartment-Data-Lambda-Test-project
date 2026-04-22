@@ -86,13 +86,6 @@ Google API key handling:
   - If the secret is JSON, the provider reads the `apiKey` property by default
 - Local non-production override:
   - Set `GOOGLE_GEOCODING_API_KEY`
-  - Or create a local `.env` file beside `Program.cs` or one level above the service output directory with `GOOGLE_GEOCODING_API_KEY=<value>`
-
-Example local `.env`:
-
-```text
-GOOGLE_GEOCODING_API_KEY=your-local-google-api-key
-```
 
 ## AWS Setup
 
@@ -128,19 +121,7 @@ Create these resources outside the repo:
 - Full addresses are not written at info level
 - Lambda logs flow to CloudWatch via the standard AWS logging pipeline
 
-## Local Validation
-
-Local startup:
-
-```bash
-dotnet run --project src/SmartApartmentLambda.Service/SmartApartmentLambda.Service.csproj
-```
-
-This starts a local HTTP host on `http://localhost:5000` when the Lambda runtime environment is not present. Use:
-
-```text
-GET http://localhost:5000/Geocode?address=70%20Vanderbilt%20Ave,%20New%20York,%20NY%2010017,%20United%20States
-```
+## Validation
 
 Build:
 
@@ -154,6 +135,8 @@ Run tests:
 dotnet test SmartApartmentLambda.Tests/SmartApartmentLambda.Tests.csproj --no-build
 ```
 
+Use the AWS .NET Mock Lambda Test Tool to invoke the Lambda locally with the handler configured in `aws-lambda-tools-defaults.json`.
+
 ## Suggested Demo Flow
 
 1. Show the project structure and explain the three-layer split.
@@ -164,4 +147,3 @@ dotnet test SmartApartmentLambda.Tests/SmartApartmentLambda.Tests.csproj --no-bu
 6. Invoke the same address again and show `X-Cache-Status: HIT`.
 7. Explain that records older than 30 days are treated as expired even before DynamoDB physically removes them.
 8. Show the test suite and mention the covered scenarios: cache hit, miss, refresh, zero results, non-cacheable statuses, and HTTP error mapping.
-
