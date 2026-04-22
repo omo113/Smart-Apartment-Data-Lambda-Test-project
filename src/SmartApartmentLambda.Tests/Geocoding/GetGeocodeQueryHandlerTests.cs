@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Logging.Abstractions;
 using SmartApartmentLambda.Application.Geocoding;
+using SmartApartmentLambda.Application.Queries;
 using Xunit;
 
 namespace SmartApartmentLambda.Tests.Geocoding;
@@ -16,7 +17,7 @@ public sealed class GetGeocodeQueryHandlerTests
             EntryToReturn = new GeocodeCacheEntry(
                 "70 vanderbilt ave, new york, ny 10017, united states",
                 "70 Vanderbilt Ave, New York, NY 10017, United States",
-                "{\"status\":\"OK\",\"results\":[{\"place_id\":\"cached\"}]}",
+                CreateGoogleResultsResponse("cached"),
                 "OK",
                 FixedUtcNow.AddDays(-1),
                 FixedUtcNow.AddDays(29),
@@ -53,7 +54,7 @@ public sealed class GetGeocodeQueryHandlerTests
         var googleClient = new StubGoogleGeocodingClient
         {
             Response = new GoogleGeocodingResponse(
-                "{\"status\":\"OK\",\"results\":[{\"place_id\":\"fresh\"}]}",
+                CreateGoogleResultsResponse("fresh"),
                 "OK")
         };
         var handler = CreateHandler(repository, googleClient);
@@ -76,7 +77,7 @@ public sealed class GetGeocodeQueryHandlerTests
         var googleClient = new StubGoogleGeocodingClient
         {
             Response = new GoogleGeocodingResponse(
-                "{\"status\":\"OK\",\"results\":[{\"place_id\":\"new\"}]}",
+                CreateGoogleResultsResponse("new"),
                 "OK")
         };
         var handler = CreateHandler(repository, googleClient);
@@ -98,7 +99,7 @@ public sealed class GetGeocodeQueryHandlerTests
         var googleClient = new StubGoogleGeocodingClient
         {
             Response = new GoogleGeocodingResponse(
-                "{\"status\":\"ZERO_RESULTS\",\"results\":[]}",
+                CreateZeroResultsResponse(),
                 "ZERO_RESULTS")
         };
         var handler = CreateHandler(repository, googleClient);
@@ -145,6 +146,41 @@ public sealed class GetGeocodeQueryHandlerTests
             new StubTimeProvider(FixedUtcNow));
     }
 
+        private static string CreateGoogleResultsResponse(string placeId) => $$"""
+                {
+                    "results": [
+                        {
+                            "place": "//places.googleapis.com/places/{{placeId}}",
+                            "placeId": "{{placeId}}",
+                            "location": {
+                                "latitude": 37.4224119,
+                                "longitude": -122.0855078
+                            },
+                            "granularity": "ROOFTOP",
+                            "formattedAddress": "1600 Amphitheatre Pkwy, Mountain View, CA 94043, USA",
+                            "addressComponents": [
+                                {
+                                    "longText": "1600",
+                                    "shortText": "1600",
+                                    "types": [
+                                        "street_number"
+                                    ]
+                                }
+                            ],
+                            "types": [
+                                "street_address"
+                            ]
+                        }
+                    ]
+                }
+                """;
+
+        private static string CreateZeroResultsResponse() => """
+                {
+                    "results": []
+                }
+                """;
+
     private sealed class StubGeocodeCacheRepository : IGeocodeCacheRepository
     {
         public GeocodeCacheEntry? EntryToReturn { get; init; }
@@ -169,7 +205,7 @@ public sealed class GetGeocodeQueryHandlerTests
     private sealed class StubGoogleGeocodingClient : IGoogleGeocodingClient
     {
         public int CallCount { get; private set; }
-        public GoogleGeocodingResponse Response { get; init; } = new("{\"status\":\"OK\",\"results\":[]}", "OK");
+        public GoogleGeocodingResponse Response { get; init; } = new(CreateGoogleResultsResponse("stub"), "OK");
 
         public Task<GoogleGeocodingResponse> GeocodeAsync(string address, CancellationToken cancellationToken)
         {

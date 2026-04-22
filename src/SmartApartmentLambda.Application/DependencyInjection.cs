@@ -1,6 +1,6 @@
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
-using SmartApartmentLambda.Application.Geocoding;
+using SmartApartmentLambda.Application.Queries;
 
 namespace SmartApartmentLambda.Application;
 

@@ -4,6 +4,7 @@ using Amazon.Lambda.Core;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using SmartApartmentLambda.Application.Geocoding;
+using SmartApartmentLambda.Application.Queries;
 
 namespace SmartApartmentLambda.Service;
 

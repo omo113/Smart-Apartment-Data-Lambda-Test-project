@@ -7,10 +7,10 @@ public sealed class GoogleGeocodingOptions
     public const string SectionName = "GoogleGeocoding";
 
     [Required]
-    public string BaseUrl { get; init; } = "https://maps.googleapis.com";
+    public string BaseUrl { get; init; } = "https://geocode.googleapis.com";
 
     [Required]
-    public string GeocodePath { get; init; } = "/maps/api/geocode/json";
+    public string GeocodePath { get; init; } = "/v4/geocode/address";
 
     [Range(1, 60)]
     public int TimeoutSeconds { get; init; } = 10;

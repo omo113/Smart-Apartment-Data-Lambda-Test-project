@@ -1,10 +1,17 @@
-using System.Diagnostics;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using SmartApartmentLambda.Application.Geocoding;
+using System.Diagnostics;
 
-namespace SmartApartmentLambda.Application.Geocoding;
+namespace SmartApartmentLambda.Application.Queries;
 
-public sealed class GetGeocodeQueryHandler : IRequestHandler<GetGeocodeQuery, GetGeocodeResult>
+public sealed class GetGeocodeQueryHandler(
+    IGeocodeCacheRepository cacheRepository,
+    IGeocodeCachePolicy cachePolicy,
+    IGoogleGeocodingClient googleGeocodingClient,
+    ILogger<GetGeocodeQueryHandler> logger,
+    TimeProvider timeProvider)
+    : IRequestHandler<GetGeocodeQuery, GetGeocodeResult>
 {
     private static readonly HashSet<string> CacheableStatuses = new(StringComparer.OrdinalIgnoreCase)
     {
@@ -12,37 +19,17 @@ public sealed class GetGeocodeQueryHandler : IRequestHandler<GetGeocodeQuery, Ge
         "ZERO_RESULTS"
     };
 
-    private readonly IGeocodeCacheRepository _cacheRepository;
-    private readonly IGeocodeCachePolicy _cachePolicy;
-    private readonly IGoogleGeocodingClient _googleGeocodingClient;
-    private readonly ILogger<GetGeocodeQueryHandler> _logger;
-    private readonly TimeProvider _timeProvider;
-
-    public GetGeocodeQueryHandler(
-        IGeocodeCacheRepository cacheRepository,
-        IGeocodeCachePolicy cachePolicy,
-        IGoogleGeocodingClient googleGeocodingClient,
-        ILogger<GetGeocodeQueryHandler> logger,
-        TimeProvider timeProvider)
-    {
-        _cacheRepository = cacheRepository;
-        _cachePolicy = cachePolicy;
-        _googleGeocodingClient = googleGeocodingClient;
-        _logger = logger;
-        _timeProvider = timeProvider;
-    }
-
     public async Task<GetGeocodeResult> Handle(GetGeocodeQuery request, CancellationToken cancellationToken)
     {
         var normalizedAddress = AddressNormalizer.Normalize(request.Address);
         var addressHash = AddressHasher.ComputeHash(normalizedAddress);
-        var now = _timeProvider.GetUtcNow();
+        var now = timeProvider.GetUtcNow();
 
         GeocodeCacheEntry? cachedEntry;
 
         try
         {
-            cachedEntry = await _cacheRepository.GetAsync(normalizedAddress, cancellationToken);
+            cachedEntry = await cacheRepository.GetAsync(normalizedAddress, cancellationToken);
         }
         catch (InternalServiceException)
         {
@@ -55,7 +42,7 @@ public sealed class GetGeocodeQueryHandler : IRequestHandler<GetGeocodeQuery, Ge
 
         if (cachedEntry is not null && cachedEntry.ExpiresAtUtc > now)
         {
-            _logger.LogInformation(
+            logger.LogInformation(
                 "Handled geocode request for {AddressHash} with cache status {CacheStatus} and Google status {GoogleStatus}",
                 addressHash,
                 GeocodeCacheStatus.Hit,
@@ -66,12 +53,12 @@ public sealed class GetGeocodeQueryHandler : IRequestHandler<GetGeocodeQuery, Ge
 
         var cacheStatus = cachedEntry is null ? GeocodeCacheStatus.Miss : GeocodeCacheStatus.Refresh;
         var googleStopwatch = Stopwatch.StartNew();
-        var googleResponse = await _googleGeocodingClient.GeocodeAsync(request.Address, cancellationToken);
+        var googleResponse = await googleGeocodingClient.GeocodeAsync(request.Address, cancellationToken);
         googleStopwatch.Stop();
 
         if (CacheableStatuses.Contains(googleResponse.Status))
         {
-            var expiresAtUtc = now.Add(_cachePolicy.CacheDuration);
+            var expiresAtUtc = now.Add(cachePolicy.CacheDuration);
             var entry = new GeocodeCacheEntry(
                 normalizedAddress,
                 request.Address,
@@ -83,7 +70,7 @@ public sealed class GetGeocodeQueryHandler : IRequestHandler<GetGeocodeQuery, Ge
 
             try
             {
-                await _cacheRepository.SaveAsync(entry, cancellationToken);
+                await cacheRepository.SaveAsync(entry, cancellationToken);
             }
             catch (InternalServiceException)
             {
@@ -95,7 +82,7 @@ public sealed class GetGeocodeQueryHandler : IRequestHandler<GetGeocodeQuery, Ge
             }
         }
 
-        _logger.LogInformation(
+        logger.LogInformation(
             "Handled geocode request for {AddressHash} with cache status {CacheStatus}, Google status {GoogleStatus}, and upstream latency {UpstreamLatencyMs}ms",
             addressHash,
             cacheStatus,

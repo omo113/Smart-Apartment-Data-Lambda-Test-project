@@ -58,8 +58,8 @@ https://<api-host>/Geocode?address=70%20Vanderbilt%20Ave,%20New%20York,%20NY%201
     - `ExpiresAtUtc`
     - `TtlEpochSeconds`
 - Cache policy:
-  - Cache only Google statuses `OK` and `ZERO_RESULTS`
-  - Skip caching for `OVER_QUERY_LIMIT`, `REQUEST_DENIED`, `INVALID_REQUEST`, and similar non-stable responses
+  - Cache only the successful geocode states `OK` and `ZERO_RESULTS`
+  - Treat non-successful Google API responses as upstream failures instead of cacheable statuses
   - Refresh after 30 days even if DynamoDB TTL has not deleted the record yet
 - DynamoDB TTL:
   - Enable TTL on `TtlEpochSeconds`
@@ -67,6 +67,8 @@ https://<api-host>/Geocode?address=70%20Vanderbilt%20Ave,%20New%20York,%20NY%201
 ## Configuration And Secrets
 
 Non-secret settings are stored in `appsettings.json` and can be overridden with environment variables.
+
+The default Google configuration targets Geocoding API v4 address lookups at `https://geocode.googleapis.com/v4/geocode/address/{address}`.
 
 - `GeocodeCache__TableName`
 - `GeocodeCache__CacheDurationDays`

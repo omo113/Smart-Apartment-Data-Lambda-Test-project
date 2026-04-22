@@ -22,6 +22,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SmartApartmentLambda.Application\SmartApartmentLambda.Application.csproj" />
+    <ProjectReference Include="..\SmartApartmentLambda.Infrastructure\SmartApartmentLambda.Infrastructure.csproj" />
     <ProjectReference Include="..\SmartApartmentLambda.Service\SmartApartmentLambda.Service.csproj" />
   </ItemGroup>
 </Project>
